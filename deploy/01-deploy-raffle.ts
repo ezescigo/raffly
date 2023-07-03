@@ -9,6 +9,7 @@ import {
 } from "../typechain-types/@chainlink/contracts/src/v0.8/mocks/VRFCoordinatorV2Mock"
 import { verify } from "../utils/verify"
 import { BigNumberish } from "ethers"
+import { Raffle__factory } from "../typechain-types"
 
 const VRF_SUB_FUND_AMOUNT = ethers.parseEther("30")
 
@@ -85,6 +86,17 @@ const raffle: DeployFunction = async function ({
 
     // console.log("args", args)
 
+    // const signers = await ethers.getSigners()
+    // const raffleContract = new Raffle__factory(signers[0])
+    // const raffle = await raffleContract.deploy(
+    //     vrfCoordinatorV2Address!,
+    //     entranceFee!,
+    //     gasLane!,
+    //     subscriptionId!,
+    //     callbackGasLimit!,
+    //     interval!
+    // )
+
     const raffle = await deploy("Raffle", {
         from: deployer,
         args: args,
@@ -93,12 +105,12 @@ const raffle: DeployFunction = async function ({
     })
 
     if (vrfCoordinatorV2Mock && subscriptionId) {
-        await vrfCoordinatorV2Mock!.addConsumer(subscriptionId, raffle.address)
+        await vrfCoordinatorV2Mock!.addConsumer(subscriptionId, await raffle.address)
     }
 
-    // if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-    //     await verify(raffle.address, args)
-    // }
+    if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
+        await verify(raffle.address, args)
+    }
 
     console.log("------------------------------------------------------")
 }

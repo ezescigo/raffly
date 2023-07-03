@@ -1,12 +1,12 @@
 import { deployments, ethers, getNamedAccounts, network } from "hardhat"
 import { ChainId, developmentChains, networkConfig } from "../../helper-hardhat-config"
-import { Raffle, VRFCoordinatorV2Mock } from "../../typechain-types"
+import { Raffle, Raffle__factory, VRFCoordinatorV2Mock } from "../../typechain-types"
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers"
 import { assert, expect } from "chai"
 
 !developmentChains.includes(network.name)
     ? describe.skip
-    : describe("Raffle Unit Tests", async () => {
+    : describe("Raffle Unit Tests", () => {
           let raffle: Raffle
           let deployer: HardhatEthersSigner
           let vrfCoordinatorV2Mock: VRFCoordinatorV2Mock
@@ -34,7 +34,7 @@ import { assert, expect } from "chai"
               entranceFee = await raffle.getEntranceFee()
               interval = await raffle.getInterval()
           })
-          describe("constructor", async () => {
+          describe("constructor", () => {
               it("initializes raffleState correctly", async () => {
                   const raffleState = await raffle.getRaffleState()
                   assert.equal(raffleState.toString(), "0")
@@ -47,7 +47,7 @@ import { assert, expect } from "chai"
                   )
               })
           })
-          describe("EnterRaffle", async () => {
+          describe("EnterRaffle", () => {
               it("Reverts when you dont pay enough", async () => {
                   await expect(raffle.enterRaffle()).to.be.revertedWithCustomError(
                       raffle,
@@ -79,6 +79,25 @@ import { assert, expect } from "chai"
                   // await expect(
                   //     raffle.enterRaffle({ value: sendValue })
                   // ).to.be.revertedWithCustomError(raffle, "Raffle__NotOpen")
+              })
+          })
+          describe("checkUpkeep", () => {
+              //     it("Returns false if people haven't sent any ETH", async () => {
+              //         await network.provider.send("evm_increaseTime", [Number(interval) + 1])
+              //         await network.provider.send("evm_mine", [])
+              //         // const { upKeepNeeded } = await raffle.callStatic.checkUpkeep("0x")
+              //         console.log(upKeepNeeded)
+              // assert(!upkeepNeeded)
+              //     })
+              it("Returns false if raffle isn't open", async () => {
+                  await raffle.enterRaffle({ value: entranceFee })
+                  await network.provider.send("evm_increaseTime", [Number(interval) + 1])
+                  await network.provider.send("evm_mine", [])
+                  await raffle.performUpkeep("0x")
+                  const raffleState = await raffle.getRaffleState()
+                  // const { upkeepNeeded } = raffle.callStatic.checkUpkeep("0x")
+                  assert.equal(raffleState.toString(), "1")
+                  // assert.equal(upkeepNeeded, false)
               })
           })
       })
