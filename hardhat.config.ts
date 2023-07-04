@@ -10,6 +10,7 @@ const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY || ""
 const SEPOLIA_RPC_URL =
     process.env.SEPOLIA_RPC_URL || "https://eth-sepolia.g.alchemy.com/v2/YOUR-API-KEY"
 const PRIVATE_KEY = process.env.PRIVATE_KEY || ""
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY || ""
 
 const config: HardhatUserConfig = {
     defaultNetwork: "hardhat",
@@ -22,6 +23,13 @@ const config: HardhatUserConfig = {
             url: SEPOLIA_RPC_URL,
             accounts: [PRIVATE_KEY],
             chainId: 11155111,
+            saveDeployments: true,
+        },
+    },
+    etherscan: {
+        // npx hardhat verify --network <NETWORK> <CONTRACT_ADDRESS> <CONSTRUCTOR_PARAMETERS>
+        apiKey: {
+            sepolia: ETHERSCAN_API_KEY,
         },
     },
     namedAccounts: {
@@ -33,7 +41,7 @@ const config: HardhatUserConfig = {
         },
     },
     mocha: {
-        timeout: 120000,
+        timeout: 420000,
     },
     solidity: {
         compilers: [

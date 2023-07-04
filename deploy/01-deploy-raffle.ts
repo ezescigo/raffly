@@ -40,11 +40,9 @@ const raffle: DeployFunction = async function ({
         const transactionResponse = await vrfCoordinatorV2Mock.createSubscription()
         const transactionReceipt = (await transactionResponse.wait(1)) as any
 
-        // subscriptionId = await transactionReceipt?.events[0].args.subscriptionId
-        subscriptionId = 1
+        subscriptionId = await transactionReceipt?.logs[0].topics[1]
+        // subscriptionId = 1
 
-        // console.log("sub id", subscriptionId)
-        // console.log(transactionReceipt)
         const fundTxResponse = await vrfCoordinatorV2Mock.fundSubscription(
             subscriptionId,
             VRF_SUB_FUND_AMOUNT

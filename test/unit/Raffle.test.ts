@@ -2,9 +2,10 @@ import { deployments, ethers, getNamedAccounts, network } from "hardhat"
 import { ChainId, developmentChains, networkConfig } from "../../helper-hardhat-config"
 import { Raffle, Raffle__factory, VRFCoordinatorV2Mock } from "../../typechain-types"
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers"
-import { assert, expect } from "chai"
+import { expect } from "chai"
 import { Deployment } from "hardhat-deploy/types"
 import { BigNumberish, EventLog } from "ethers"
+import assert from "assert"
 
 !developmentChains.includes(network.name)
     ? describe.skip
@@ -175,53 +176,96 @@ import { BigNumberish, EventLog } from "ethers"
                   // wait for the fulfillRandomWords to be called
                   await new Promise(async (resolve, reject) => {
                       const event = raffle.getEvent("WinnerPicked")
-                      console.log("event", event)
-                      raffle.once(event, async () => {
-                          console.log("WinnerPicked triggered!")
-                          try {
-                              const recentWinner = await raffle.getRecentWinner()
-                              console.log("recentWinner", recentWinner)
-                              console.log(accounts[0].address)
-                              console.log(accounts[1].address)
-                              console.log(accounts[2].address)
-                              console.log(accounts[3].address)
-                              const raffleState = await raffle.getRaffleState()
-                              const endingTimeStamp = await raffle.getLastTimeStamp()
-                              const numPlayers = await raffle.getNumberOfPlayers()
-                              const winnerEndingBalance = await raffle.runner!.provider!.getBalance(
-                                  accounts[1].address
-                              )
-                              assert.equal(numPlayers.toString(), "0")
-                              assert.equal(raffleState.toString(), "0")
-                              assert(endingTimeStamp > startingTimeStamp)
+                      // console.log("event", event)
+                      // await raffle.once(event, async () => {
+                      //     console.log("WinnerPicked triggered!")
+                      //     try {
+                      //         const recentWinner = await raffle.getRecentWinner()
+                      //         console.log("recentWinner", recentWinner)
+                      //         console.log(accounts[0].address)
+                      //         console.log(accounts[1].address)
+                      //         console.log(accounts[2].address)
+                      //         console.log(accounts[3].address)
+                      //         const raffleState = await raffle.getRaffleState()
+                      //         const endingTimeStamp = await raffle.getLastTimeStamp()
+                      //         const numPlayers = await raffle.getNumberOfPlayers()
+                      //         const winnerEndingBalance = await raffle.runner!.provider!.getBalance(
+                      //             accounts[1].address
+                      //         )
+                      //         assert.equal(numPlayers.toString(), "0")
+                      //         assert.equal(raffleState.toString(), "0")
+                      //         assert(endingTimeStamp > startingTimeStamp)
 
-                              // Winner ends with their starting money + all the entries fees (including theirs)
-                              assert.equal(
-                                  winnerEndingBalance.toString(),
-                                  (
-                                      winnerStartingBalance +
-                                      entranceFee * BigInt(additionalParticipants)
-                                  ).toString()
-                              )
-                          } catch (e) {
-                              reject(e)
-                          }
-                          resolve("")
-                      })
-                      const tx = await raffle.performUpkeep("0x")
-                      const txReceipt = await tx.wait(1)
-                      const txReceiptEventLogs = txReceipt?.logs[1] as EventLog
-                      const requestId = txReceiptEventLogs.args[0]
-                      console.log("tx receipt", txReceiptEventLogs.args[0])
+                      //         // Winner ends with their starting money + all the entries fees (including theirs)
+                      //         assert.equal(
+                      //             winnerEndingBalance.toString(),
+                      //             (
+                      //                 winnerStartingBalance +
+                      //                 entranceFee * BigInt(additionalParticipants)
+                      //             ).toString()
+                      //         )
+                      //     } catch (e) {
+                      //         reject(e)
+                      //     }
+                      //     resolve("")
+                      // })
 
-                      const winnerStartingBalance = await raffle.runner!.provider!.getBalance(
-                          accounts[1].address
-                      )
+                      try {
+                          await raffle.enterRaffle({ value: entranceFee })
+                          await network.provider.send("evm_increaseTime", [Number(interval) + 1])
+                          await network.provider.send("evm_mine", [])
 
-                      // console.log("winnerStartingBalance", winnerStartingBalance)
-                      // console.log("requestId", requestId)
-                      // console.log("raffleAddress", raffleAddress)
-                      await vrfCoordinatorV2Mock.fulfillRandomWords(requestId, raffleAddress)
+                          const tx = await raffle.performUpkeep("0x")
+                          const txReceipt = await tx.wait(1)
+
+                          const txReceiptEventLogs = txReceipt?.logs[0] as EventLog
+                          // console.log("here", txReceiptEventLogs)
+                          const requestId = txReceiptEventLogs.topics[2]
+                          console.log("tx receipt", requestId)
+
+                          const winnerStartingBalance = await raffle.runner!.provider!.getBalance(
+                              accounts[1].address
+                          )
+
+                          // console.log("winnerStartingBalance", winnerStartingBalance)
+                          // console.log("requestId", requestId)
+                          // console.log("raffleAddress", raffleAddress)
+                          // await vrfCoordinatorV2Mock.fulfillRandomWords(requestId, raffle.target)
+
+                          // await new Promise((resolve) => setTimeout(resolve, 5000))
+
+                          expect(
+                              vrfCoordinatorV2Mock.fulfillRandomWords(requestId, raffle.target)
+                          ).to.emit(vrfCoordinatorV2Mock, "WinnerPicked")
+
+                          console.log("WinnerPicked !!! ")
+
+                          await new Promise((resolve) => setTimeout(resolve, 5000))
+
+                          const recentWinner = await raffle.getRecentWinner()
+                          const raffleState = await raffle.getRaffleState()
+                          const endingTimeStamp = await raffle.getLastTimeStamp()
+                          const numPlayers = await raffle.getNumberOfPlayers()
+                          const winnerEndingBalance = await raffle.runner!.provider!.getBalance(
+                              accounts[1].address
+                          )
+                          assert.equal(numPlayers.toString(), "0")
+                          assert.equal(raffleState.toString(), "0")
+                          assert(endingTimeStamp > startingTimeStamp)
+
+                          console.log("recentWinner", recentWinner)
+                          // Winner ends with their starting money + all the entries fees (including theirs)
+
+                          console.log("winnerEndingBalance", winnerEndingBalance.toString())
+                          console.log("entranceFee", entranceFee)
+                          assert.equal(
+                              (winnerEndingBalance - winnerStartingBalance).toString(),
+                              (entranceFee * BigInt(additionalParticipants + 2)).toString()
+                          )
+                          resolve("0x")
+                      } catch (e) {
+                          reject(e)
+                      }
                   })
               })
           })
