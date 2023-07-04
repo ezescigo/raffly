@@ -32,6 +32,9 @@ const config: HardhatUserConfig = {
             default: 1,
         },
     },
+    mocha: {
+        timeout: 120000,
+    },
     solidity: {
         compilers: [
             {
