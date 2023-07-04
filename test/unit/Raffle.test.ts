@@ -232,11 +232,12 @@ import assert from "assert"
                           // console.log("raffleAddress", raffleAddress)
                           // await vrfCoordinatorV2Mock.fulfillRandomWords(requestId, raffle.target)
 
-                          // await new Promise((resolve) => setTimeout(resolve, 5000))
+                          await new Promise((resolve) => setTimeout(resolve, 5000))
 
+                          // This expect does not work
                           expect(
                               vrfCoordinatorV2Mock.fulfillRandomWords(requestId, raffle.target)
-                          ).to.emit(vrfCoordinatorV2Mock, "WinnerPicked")
+                          ).to.emit(vrfCoordinatorV2Mock, "WinnerPickedsss")
 
                           console.log("WinnerPicked !!! ")
 

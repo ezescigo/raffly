@@ -20,7 +20,6 @@ developmentChains.includes(network.name)
               accounts = await ethers.getSigners()
               deployer = accounts[0]
 
-              await deployments.fixture(["all"])
               raffleContract = await deployments.get("Raffle")
 
               raffle = (await ethers.getContractAt(
@@ -39,6 +38,7 @@ developmentChains.includes(network.name)
 
                   await new Promise(async (resolve, reject) => {
                       raffle.once(event, async () => {
+                          // por alguna razón no se dispara. Pero sí se ve en el Keeper y en VRF
                           console.log("WinnerPicked event fired!")
                           try {
                               const recentWinner = await raffle.getRecentWinner()
