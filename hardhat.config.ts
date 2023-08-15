@@ -17,7 +17,16 @@ const config: HardhatUserConfig = {
     networks: {
         hardhat: {
             chainId: 31337,
+            // accounts: [
+            //     {
+            //         privateKey: PRIVATE_KEY,
+            //         balance: "100000000000000000000",
+            //     },
+            // ],
             // gasPrice: 130000000000,
+        },
+        localhost: {
+            chainId: 31337,
         },
         sepolia: {
             url: SEPOLIA_RPC_URL,

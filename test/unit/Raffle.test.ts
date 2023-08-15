@@ -221,7 +221,6 @@ import assert from "assert"
                           const txReceiptEventLogs = txReceipt?.logs[0] as EventLog
                           // console.log("here", txReceiptEventLogs)
                           const requestId = txReceiptEventLogs.topics[2]
-                          console.log("tx receipt", requestId)
 
                           const winnerStartingBalance = await raffle.runner!.provider!.getBalance(
                               accounts[1].address
