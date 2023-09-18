@@ -23,7 +23,7 @@ const raffle: DeployFunction = async function ({
     let vrfCoordinatorV2Mock
     let vrfCoordinatorV2Address, subscriptionId
 
-    console.log("holaaaaaaaaaaaaaaaaaa CHAIN ID:", chainId)
+    console.log("CHAIN ID:", chainId)
 
     if (developmentChains.includes(network.name)) {
         const vrfCoordinatorV2MockContract = await deployments.get("VRFCoordinatorV2Mock")
