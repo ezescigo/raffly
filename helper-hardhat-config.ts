@@ -1,5 +1,7 @@
 import { ethers } from "hardhat"
 
+const UPKEEP_ADDRESS = process.env.UPKEEP_ADDRESS || ""
+
 export interface NetworkConfigItemType {
     name: string
     entranceFee: bigint
@@ -8,6 +10,7 @@ export interface NetworkConfigItemType {
     vrfCoordinatorV2Address?: string
     callbackGasLimit: string
     interval: string
+    upkeepAddress?: string
 }
 
 export type NetworkConfigType = Record<ChainId, NetworkConfigItemType>
@@ -18,6 +21,7 @@ export const networkConfig: NetworkConfigType = {
     11155111: {
         name: "sepolia",
         vrfCoordinatorV2Address: "0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625",
+        upkeepAddress: UPKEEP_ADDRESS,
         entranceFee: ethers.parseEther("0.01"),
         gasLane: "0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c", // 30 gwei Key Hashm
         subscriptionId: "3306",

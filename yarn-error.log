@@ -1,5 +1,5 @@
 Arguments: 
-  /home/ezescigo/.nvm/versions/node/v18.16.0/bin/node /home/ezescigo/.cache/node/corepack/yarn/1.22.19/bin/yarn.js add @openzeppelin/upgrades/contracts
+  /home/ezescigo/.nvm/versions/node/v18.16.0/bin/node /home/ezescigo/.cache/node/corepack/yarn/1.22.19/bin/yarn.js add @openzeppelin/contracts-upgradeable/access
 
 PATH: 
   /home/ezescigo/.console-ninja/.bin:/home/ezescigo/.nvm/versions/node/v18.16.0/bin:/home/ezescigo/.console-ninja/.bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
@@ -14,7 +14,7 @@ Platform:
   linux x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@openzeppelin%2fupgrades/contracts: Request "https://registry.yarnpkg.com/@openzeppelin%2fupgrades/contracts" returned a 405
+  Error: https://registry.yarnpkg.com/@openzeppelin%2fcontracts-upgradeable/access: Request "https://registry.yarnpkg.com/@openzeppelin%2fcontracts-upgradeable/access" returned a 405
       at params.callback [as _callback] (/home/ezescigo/.cache/node/corepack/yarn/1.22.19/lib/cli.js:66154:18)
       at self.callback (/home/ezescigo/.cache/node/corepack/yarn/1.22.19/lib/cli.js:140890:22)
       at Request.emit (node:events:513:28)

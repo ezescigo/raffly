@@ -13,10 +13,11 @@ import { Raffle__factory } from "../typechain-types"
 
 const VRF_SUB_FUND_AMOUNT = ethers.parseEther("30")
 
-const raffle: DeployFunction = async function ({
+const raffleClonable: DeployFunction = async function ({
     getNamedAccounts,
     deployments,
 }: HardhatRuntimeEnvironment) {
+    ;``
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId as number
@@ -24,7 +25,7 @@ const raffle: DeployFunction = async function ({
     let vrfCoordinatorV2Address, subscriptionId
 
     console.log("CHAIN ID:", chainId)
-    console.log("---- DEPLOYING RAFFLE CONTRACT -----")
+    console.log("---- DEPLOYING RAFFLE IMPLEMENTATION CONTRACT -----")
 
     if (developmentChains.includes(network.name)) {
         const vrfCoordinatorV2MockContract = await deployments.get("VRFCoordinatorV2Mock")
@@ -58,45 +59,13 @@ const raffle: DeployFunction = async function ({
         )?.[1].subscriptionId
     }
 
-    const entranceFee = Object.entries(networkConfig).find(
-        ([key, value]) => key === chainId.toString()
-    )?.[1].entranceFee
-
     const gasLane = Object.entries(networkConfig).find(
         ([key, value]) => key === chainId.toString()
     )?.[1].gasLane
 
-    const callbackGasLimit = Object.entries(networkConfig).find(
-        ([key, value]) => key === chainId.toString()
-    )?.[1].callbackGasLimit
+    const args = [vrfCoordinatorV2Address, subscriptionId, gasLane]
 
-    const interval = Object.entries(networkConfig).find(
-        ([key, value]) => key === chainId.toString()
-    )?.[1].interval
-
-    const args = [
-        vrfCoordinatorV2Address,
-        entranceFee,
-        gasLane,
-        subscriptionId,
-        callbackGasLimit,
-        interval,
-    ]
-
-    // console.log("args", args)
-
-    // const signers = await ethers.getSigners()
-    // const raffleContract = new Raffle__factory(signers[0])
-    // const raffle = await raffleContract.deploy(
-    //     vrfCoordinatorV2Address!,
-    //     entranceFee!,
-    //     gasLane!,
-    //     subscriptionId!,
-    //     callbackGasLimit!,
-    //     interval!
-    // )
-
-    const raffle = await deploy("Raffle", {
+    const raffleClonable = await deploy("RaffleClonable", {
         from: deployer,
         args: args,
         log: true,
@@ -104,15 +73,15 @@ const raffle: DeployFunction = async function ({
     })
 
     if (vrfCoordinatorV2Mock && subscriptionId) {
-        await vrfCoordinatorV2Mock!.addConsumer(subscriptionId, await raffle.address)
+        await vrfCoordinatorV2Mock!.addConsumer(subscriptionId, await raffleClonable.address)
     }
 
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
-        await verify(raffle.address, args)
+        await verify(raffleClonable.address, args)
     }
 
     console.log("------------------------------------------------------")
 }
 
-export default raffle
-raffle.tags = ["raffle"]
+export default raffleClonable
+raffleClonable.tags = ["all", "raffleClonable"]

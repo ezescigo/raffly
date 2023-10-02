@@ -13,5 +13,9 @@ hh node
 npx hardhat node
 npx hardhat run scripts/factory.js --network localhost
 
+// Deploying Sepolia
+
+hh deploy --network sepolia
+
 // TODO
 proxy contracts to optimize gas

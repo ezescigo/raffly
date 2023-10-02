@@ -36,8 +36,8 @@ interface IUpkeepManager {
 contract RaffleFactory {
     address public immutable implementation;
     address public immutable _manager;
-    address public immutable _upkeep;
     address public immutable deployer;
+    address public _upkeep;
     address[] public raffles;
 
     event CloneCreated(address indexed _instance, address indexed creator);
@@ -56,7 +56,7 @@ contract RaffleFactory {
     }
 
     function createNewRaffle() external payable returns (address newInstance) {
-        require(msg.value == 10000000000000000000 wei);
+        require(msg.value == 100000000000000000 wei);
 
         newInstance = Clones.clone(implementation);
         IImplementation(newInstance).initialize(msg.sender);
@@ -74,13 +74,22 @@ contract RaffleFactory {
             5000000,
             msg.sender,
             "0x",
-            5000000000000000000,
+            500000000000000000,
             0
         );
         emit UpkeepAdded(upkeepID);
-        (bool success, ) = payable(msg.sender).call{value: 10000000000000000000}("");
+        (bool success, ) = payable(msg.sender).call{value: 100000000000000000}("");
         require(success, "tx failed");
 
         return newInstance;
+    }
+
+    function updateUpkeep(address upkeepContract) public adminRestricted {
+        _upkeep = upkeepContract;
+    }
+
+    modifier adminRestricted() {
+        require(msg.sender == deployer);
+        _;
     }
 }
